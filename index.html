@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esther Tan — Integrated Media</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── Tokens ── */
+  :root {
+    --bg:           #f5f0e8;
+    --text:         #1a3a2a;
+    --accent:       #2d6a4f;
+    --muted:        #5a7a6a;
+    --pill-bg:      #e8efe9;
+    --pill-border:  #b8d4c0;
+    --border:       #d4e0d8;
+    --nav-height:   64px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Typography ── */
+  h1, h2, h3 { font-family: 'DM Serif Display', serif; font-weight: 400; line-height: 1.1; }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ── Shared ── */
+  .container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .section-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Fade-in animation ── */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ══════════════════════════════════════
+     NAV
+  ══════════════════════════════════════ */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: var(--nav-height);
+    display: flex;
+    align-items: center;
+    transition: background 0.3s, border-color 0.3s, height 0.3s;
+    border-bottom: 1px solid transparent;
+  }
+
+  nav.scrolled {
+    background: rgba(245, 240, 232, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-color: var(--border);
+    height: 52px;
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .nav-logo {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: var(--text);
+  }
+
+  /* Mobile nav toggle */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+  }
+
+  .nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: var(--text);
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+  .nav-toggle.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    z-index: 99;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .mobile-menu.open { display: flex; }
+
+  .mobile-menu a {
+    font-size: 0.9rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* ══════════════════════════════════════
+     HERO
+  ══════════════════════════════════════ */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: var(--nav-height);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-watermark {
+    position: absolute;
+    right: -2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(8rem, 18vw, 18rem);
+    color: var(--accent);
+    opacity: 0.04;
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.75rem;
+  }
+
+  .hero-headline {
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    line-height: 1.02;
+    color: var(--text);
+    margin-bottom: 2rem;
+  }
+
+  .hero-headline em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-taglines {
+    list-style: none;
+    margin-bottom: 2.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .hero-taglines li {
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .hero-taglines li::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 0.75rem 1.6rem;
+    border-radius: 3px;
+    transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+    cursor: pointer;
+  }
+
+  .btn:active { transform: scale(0.98); }
+
+  .btn-filled {
+    background: var(--accent);
+    color: var(--bg);
+    border: 1.5px solid var(--accent);
+  }
+
+  .btn-filled:hover {
+    background: var(--text);
+    border-color: var(--text);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+  }
+
+  .btn-ghost:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .hero-contact {
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  .hero-contact a {
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    transition: border-color 0.2s;
+  }
+
+  .hero-contact a:hover { border-color: var(--accent); }
+
+  /* ══════════════════════════════════════
+     WORK
+  ══════════════════════════════════════ */
+  #work {
+    padding: 7rem 0;
+  }
+
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .work-card {
+    background: #ede8df;
+    border: 1px solid var(--border);
+    border-left: 3px solid transparent;
+    border-radius: 4px;
+    padding: 2rem 1.75rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    transition: border-left-color 0.25s, box-shadow 0.25s, transform 0.25s;
+    cursor: default;
+  }
+
+  .work-card:hover {
+    border-left-color: var(--accent);
+    box-shadow: 0 8px 32px rgba(26, 58, 42, 0.1);
+    transform: translateY(-3px);
+  }
+
+  .work-tag {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .work-card h3 {
+    font-size: 1.2rem;
+    line-height: 1.2;
+    margin-bottom: 0.85rem;
+    color: var(--text);
+  }
+
+  .work-card p {
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--muted);
+    flex: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  .work-card p strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .work-year {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--pill-border);
+    font-weight: 400;
+    margin-top: auto;
+  }
+
+  /* ══════════════════════════════════════
+     EXPERTISE / SKILLS
+  ══════════════════════════════════════ */
+  #expertise {
+    padding: 7rem 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+  }
+
+  .skill-group h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-size: 0.73rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    background: var(--pill-bg);
+    border: 1px solid var(--pill-border);
+    border-radius: 100px;
+    padding: 0.35rem 0.9rem;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+
+  .tag:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+
+  /* ══════════════════════════════════════
+     EXPERIENCE
+  ══════════════════════════════════════ */
+  #experience {
+    padding: 7rem 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: 3rem;
+  }
+
+  .timeline-item:last-child { padding-bottom: 0; }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.35rem;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+  }
+
+  .timeline-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-role {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--text);
+  }
+
+  .timeline-company {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+  }
+
+  .timeline-dates {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-left: auto;
+  }
+
+  .timeline-desc {
+    font-size: 0.83rem;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 680px;
+  }
+
+  .timeline-desc strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ══════════════════════════════════════
+     CONTACT
+  ══════════════════════════════════════ */
+  #contact {
+    padding: 8rem 0 5rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .contact-inner {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  #contact .section-label {
+    justify-content: center;
+  }
+
+  #contact .section-label::after { display: none; }
+
+  .contact-heading {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 1.25rem;
+    line-height: 1.1;
+  }
+
+  .contact-sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+  }
+
+  .contact-ctas {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .contact-qr {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .contact-qr img {
+    width: 120px;
+    height: 120px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: block;
+  }
+
+  .contact-qr p {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ══════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════ */
+  footer {
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-name {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .footer-copy {
+    font-size: 0.7rem;
+    color: var(--pill-border);
+    letter-spacing: 0.04em;
+  }
+
+  /* ══════════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════════ */
+  @media (max-width: 900px) {
+    .work-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .nav-toggle { display: flex; }
+
+    .work-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .skills-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .timeline-meta {
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .timeline-dates { margin-left: 0; }
+
+    footer {
+      flex-direction: column;
+      gap: 0.5rem;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-ctas { flex-direction: column; }
+    .btn { justify-content: center; }
+    .contact-ctas { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <a href="#hero" class="nav-logo">Esther Tan</a>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#expertise">Expertise</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#work" class="mobile-link">Work</a>
+  <a href="#expertise" class="mobile-link">Expertise</a>
+  <a href="#experience" class="mobile-link">Experience</a>
+  <a href="#contact" class="mobile-link">Contact</a>
+</div>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="hero-watermark">MEDIA</div>
+  <div class="container">
+    <div class="hero-content fade-up visible">
+      <p class="hero-eyebrow">Performance Marketing · APAC · Integrated Media</p>
+      <h1 class="hero-headline">
+        Performance<br>
+        <em>Marketer,</em><br>
+        Integrated Media.
+      </h1>
+      <ul class="hero-taglines">
+        <li>Campaigns that convert.</li>
+        <li>Clients that stay.</li>
+        <li>6+ years across APAC.</li>
+      </ul>
+      <div class="hero-ctas">
+        <a href="#work" class="btn btn-filled">View Work ↗</a>
+        <a href="#" class="btn btn-ghost">LinkedIn ↗</a>
+      </div>
+      <p class="hero-contact">
+        Get in touch — <a href="mailto:cszesther@gmail.com">cszesther@gmail.com</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WORK ══ -->
+<section id="work">
+  <div class="container">
+    <p class="section-label fade-up">Selected Work</p>
+    <div class="work-grid">
+
+      <div class="work-card fade-up">
+        <p class="work-tag">Integrated Media · KOL · OOH</p>
+        <h3>OPPO Singapore — Reno14 &amp; FindX9 Launch</h3>
+        <p>Led regional media planning across Google, Meta and TikTok for OPPO's flagship series launch. Partnered with clients and internal China teams to deliver campaign objectives.<br><br><strong>Achieved 3.6x ROAS.</strong></p>
+        <span class="work-year">2025 · BlueFocus Singapore</span>
+      </div>
+
+      <div class="work-card fade-up" style="transition-delay:0.1s">
+        <p class="work-tag">Search · Performance · 10 Markets</p>
+        <h3>Marina Bay Sands — Global Search</h3>
+        <p>Owned Search media planning, buying and optimisation across 10 key markets — Hotel Rooms, F&amp;B and Sands Rewards. Built Looker Studio dashboards to automate campaign reporting.<br><br><strong>180% ROAS growth with 64% lower budget. Cost of sales reduced by 311%.</strong></p>
+        <span class="work-year">2022–23 · Assembly, Stagwell</span>
+      </div>
+
+      <div class="work-card fade-up" style="transition-delay:0.2s">
+        <p class="work-tag">Paid Search · Multi-Market · 11 Asia Markets</p>
+        <h3>Coca-Cola Company &amp; Portfolio Brands</h3>
+        <p>Owned USD 1M+ monthly budget across regional markets for The Coca-Cola Company. Managed Google Search, Display, Shopping and YouTube campaigns for Jones Lang LaSalle, Treasury Wine Estates and H&H Group<br><br><strong>28% lead growth through test-and-learn initiatives./strong></p>
+        <span class="work-year">2021–22 · GroupM, WPP</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ EXPERTISE ══ -->
+<section id="expertise">
+  <div class="container">
+    <p class="section-label fade-up">Expertise</p>
+    <div class="skills-grid">
+
+      <div class="skill-group fade-up">
+        <h3>Platforms &amp; Tools</h3>
+        <div class="tags">
+          <span class="tag">Google Ads</span>
+          <span class="tag">Meta</span>
+          <span class="tag">TikTok</span>
+          <span class="tag">DV360</span>
+          <span class="tag">Campaign Manager</span>
+          <span class="tag">LinkedIn Ads</span>
+          <span class="tag">Yahoo</span>
+          <span class="tag">Naver</span>
+          <span class="tag">AppsFlyer</span>
+          <span class="tag">GA4</span>
+          <span class="tag">Looker Studio</span>
+          <span class="tag">Tableau</span>
+          <span class="tag">SQL</span>
+        </div>
+      </div>
+
+      <div class="skill-group fade-up" style="transition-delay:0.1s">
+        <h3>Capabilities</h3>
+        <div class="tags">
+          <span class="tag">APAC Multi-Market Planning</span>
+          <span class="tag">Performance Marketing</span>
+          <span class="tag">Budget Pacing &amp; Optimisation</span>
+          <span class="tag">Campaign A/B Testing</span>
+          <span class="tag">Reporting Automation</span>
+          <span class="tag">Stakeholder Management</span>
+          <span class="tag">KOL / Influencer Marketing</span>
+          <span class="tag">OOH</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ EXPERIENCE ══ -->
+<section id="experience">
+  <div class="container">
+    <p class="section-label fade-up">Experience</p>
+    <div class="timeline">
+
+      <div class="timeline-item fade-up">
+        <div class="timeline-meta">
+          <span class="timeline-role">Regional Media Planner, Manager</span>
+          <span class="timeline-company">BlueFocus Singapore</span>
+          <span class="timeline-dates">Feb 2025 – Present</span>
+        </div>
+        <p class="timeline-desc">
+          Lead regional media planning, campaign management and execution for OPPO, Singapore Red Cross and SAIC Motor across Google, Meta, TikTok, OOH and KOL. Partner with clients, internal China teams and media vendors to deliver campaign objectives. Actively involved in integrated media pitches. <strong>Achieved 3.6x ROAS for OPPO FindX9 flagship launch.</strong>
+        </p>
+      </div>
+
+      <div class="timeline-item fade-up">
+        <div class="timeline-meta">
+          <span class="timeline-role">Digital Analyst</span>
+          <span class="timeline-company">Assembly, Stagwell Singapore</span>
+          <span class="timeline-dates">Dec 2022 – Jul 2023</span>
+        </div>
+        <p class="timeline-desc">
+          Owned global Search media planning, buying and optimisation for Marina Bay Sands across 10 key markets. Built Looker Studio dashboards to automate campaign reporting. Led Yahoo Japan and Naver workstreams — <strong>3.3x conversion growth in Japan, 2x in Korea.</strong>
+        </p>
+      </div>
+
+      <div class="timeline-item fade-up">
+        <div class="timeline-meta">
+          <span class="timeline-role">Senior Paid Search Executive</span>
+          <span class="timeline-company">GroupM, WPP Singapore</span>
+          <span class="timeline-dates">Feb 2021 – Dec 2022</span>
+        </div>
+        <p class="timeline-desc">
+          Managed Google Search, Display, Shopping and YouTube campaigns across 11 Asia markets for Coca-Cola, JLL, Treasury Wine Estates and H&amp;H Group. Owned USD 1M+ monthly budget. <strong>28% lead growth</strong> through test-and-learn initiatives and brand lift studies.
+        </p>
+      </div>
+
+      <div class="timeline-item fade-up">
+        <div class="timeline-meta">
+          <span class="timeline-role">Marketing &amp; Business Development Executive</span>
+          <span class="timeline-company">Hemsco (S) Pte Ltd</span>
+          <span class="timeline-dates">Aug 2015 – Dec 2019</span>
+        </div>
+        <p class="timeline-desc">
+          Drove product sales via ecommerce (Lazada, Shopify), events and social media. Spearheaded SEO strategy maintaining core keywords top 3 on Google SERP. <strong>2x sales growth</strong> during major promotional periods and <strong>37% increase in B2B lead enquiries</strong> through conversion path redesign.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-inner fade-up">
+      <p class="section-label" style="justify-content:center">Let's Talk</p>
+      <h2 class="contact-heading">Open to new opportunities<br><em>and interesting briefs.</em></h2>
+      <p class="contact-sub">Whether you're looking for a performance marketer, a campaign lead, or a strategic media partner — I'd love to hear from you.</p>
+      <div class="contact-ctas">
+        <a href="mailto:cszesther@gmail.com" class="btn btn-filled">Say Hello ↗</a>
+        <a href="https://www.linkedin.com/in/esthertanshuzhen/" target="_blank" rel="noopener" class="btn btn-ghost">LinkedIn ↗</a>
+      </div>
+      <div class="contact-qr">
+        <img src="qr.png" alt="Scan to connect on LinkedIn">
+        <p>Scan to connect on LinkedIn</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <span class="footer-name">Esther Tan Shu Zhen</span>
+  <span class="footer-copy">© 2026</span>
+</footer>
+
+<script>
+  // ── Navbar scroll behavior
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  // ── Mobile menu toggle
+  const navToggle = document.getElementById('navToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  navToggle.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    navToggle.classList.toggle('open', open);
+  });
+
+  document.querySelectorAll('.mobile-link').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      navToggle.classList.remove('open');
+    });
+  });
+
+  // ── Scroll-triggered fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // ── Active nav link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+
+  sections.forEach(s => sectionObserver.observe(s));
+</script>
+</body>
+</html>
